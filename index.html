@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Creación y Despliegue - Fondo de Bikini</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter + fuentes del proyecto real (Baloo 2 / Quicksand) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&family=Baloo+2:wght@600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- JSZip & FileSaver para la descarga de la carpeta img -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                            950: '#042f2e',
+                        },
+                        emerald: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                            950: '#042f2e',
+                        },
+                        coral: {
+                            50: '#fff4f0',
+                            100: '#ffe4d9',
+                            200: '#ffc3ac',
+                            300: '#ffa17f',
+                            400: '#ff8e69',
+                            500: '#ff7a59',
+                            600: '#e8613f',
+                            700: '#c24b2e',
+                            800: '#9b3a22',
+                            900: '#742b18',
+                        },
+                        sol: {
+                            300: '#ffe188',
+                            400: '#ffd868',
+                            500: '#ffd23f',
+                            600: '#e0b11f',
+                        },
+                        dark: {
+                            bg: '#071a2b',
+                            card: '#0d2740',
+                            border: '#1b3a54',
+                            code: '#081d30'
+                        },
+                        slate: {
+                            50: '#fafafa',
+                            100: '#f4f4f5',
+                            200: '#e4e4e7',
+                            300: '#d4d4d8',
+                            400: '#a1a1aa',
+                            500: '#71717a',
+                            600: '#52525b',
+                            700: '#3f3f46',
+                            800: '#27272a',
+                            900: '#18181b',
+                            950: '#09090b',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Quicksand', 'Inter', 'sans-serif'],
+                        display: ['Baloo 2', 'Quicksand', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Styles for Preview Tab Simulation (réplica de CSS/style.css — Océano moderno y vibrante) */
+        .preview-body {
+            font-family: 'Quicksand', 'Segoe UI', sans-serif;
+            background-color: #eafcff;
+            color: #1e3a4c;
+        }
+        .preview-navbar {
+            background: linear-gradient(100deg, #04395e, #0477bf 65%, #14b8a6);
+            padding: 12px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 14px rgba(4, 57, 94, 0.25);
+        }
+        .preview-navbar .logo {
+            width: 38px;
+            height: 38px;
+            background-color: #fff;
+            border-radius: 50%;
+            padding: 3px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .preview-navbar .logo img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+        .preview-navbar ul {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .preview-navbar a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 5px 12px;
+            border-radius: 999px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .preview-navbar a:hover { background-color: #ffd23f; color: #04395e; }
+        header { position: relative; display: block; overflow: hidden; }
+        .preview-banner { width: 100%; height: 160px; object-fit: cover; display: block; }
+        header::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -1px;
+            width: 100%;
+            height: 34px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120' preserveAspectRatio='none'%3E%3Cpath d='M0,40 C360,110 1080,-10 1440,60 L1440,120 L0,120 Z' fill='%23eafcff'/%3E%3C/svg%3E");
+            background-size: 100% 100%;
+        }
+        .preview-titulo-seccion {
+            text-align: center;
+            margin: 16px auto 24px;
+            max-width: 800px;
+            background-color: #ffffff;
+            border-radius: 18px;
+            border-top: 4px solid #14b8a6;
+            box-shadow: 0 8px 20px rgba(4, 119, 191, 0.12);
+            padding: 16px;
+        }
+        .preview-titulo-seccion h1 {
+            font-family: 'Baloo 2', sans-serif;
+            font-weight: 800;
+            font-size: 1.6rem;
+            letter-spacing: 1px;
+            background: linear-gradient(90deg, #ffd23f, #ff7a59);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 0;
+        }
+        .preview-titulo-seccion p { color: #4a6373; font-size: 0.9rem; margin-top: 8px; }
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 14px;
+            max-width: 900px;
+            margin: 0 auto 24px;
+            padding: 0 16px;
+        }
+        .preview-tarjeta {
+            background-color: #ffffff;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 6px 16px rgba(4, 57, 94, 0.1);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .preview-tarjeta:hover { transform: translateY(-4px); box-shadow: 0 12px 22px rgba(20, 184, 166, 0.3); }
+        .preview-tarjeta .img-container { background-color: #e3f6fb; height: 90px; overflow: hidden; }
+        .preview-tarjeta img { width: 100%; height: 100%; object-fit: cover; }
+        .preview-tarjeta .info { padding: 10px; }
+        .preview-tarjeta h2 { font-family: 'Baloo 2', sans-serif; color: #04395e; font-size: 0.85rem; margin: 0 0 4px 0; }
+        .preview-tarjeta p { font-size: 0.7rem; color: #4a6373; margin: 0; line-height: 1.3; }
+        .preview-footer { background: linear-gradient(165deg, #04395e, #0477bf 70%, #14b8a6); color: rgba(255,255,255,0.88); padding: 16px; text-align: center; }
+        .preview-footer p { margin: 0; font-size: 0.75rem; }
+        .preview-footer .autor { font-weight: 600; font-size: 0.7rem; display: block; margin-top: 6px; color: #ffd23f; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #071a2b; }
+        ::-webkit-scrollbar-thumb { background: #0d9488; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #14b8a6; }
+
+        /* Regla global para prevenir scroll horizontal */
+        html, body { max-width: 100vw; overflow-x: hidden; }
+
+        /* Fondo: azul océano profundo con un resplandor turquesa sutil arriba */
+        .bg-fade {
+            background:
+                radial-gradient(900px circle at 50% -10%, rgba(20, 184, 166, 0.14), transparent 60%),
+                radial-gradient(700px circle at 90% 10%, rgba(255, 122, 89, 0.06), transparent 55%),
+                #071a2b;
+            background-attachment: fixed;
+        }
+
+        /* Stepper de navegación: base neutra azul marino, acentos turquesa/coral en el paso activo */
+        .step-circle {
+            background-color: #0d2740;
+            border-color: #1b3a54;
+            color: #7fa8bd;
+        }
+        .step-circle.is-active {
+            background-color: #071a2b;
+            border-color: #14b8a6;
+            color: #5eead4;
+            box-shadow: 0 0 10px rgba(20, 184, 166, 0.5);
+        }
+        .step-circle.is-done {
+            background-color: #071a2b;
+            border-color: #0d9488;
+            color: #5eead4;
+        }
+        .step-label.is-active,
+        .step-label.is-done {
+            color: #5eead4;
+        }
+        [data-line].bg-emerald-500 {
+            box-shadow: 0 0 4px rgba(20, 184, 166, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-fade text-slate-200 font-sans min-h-screen flex flex-col overflow-x-hidden w-full max-w-full relative">
+
+    <!-- Interactive Dot Grid Canvas -->
+    <canvas id="dot-grid-canvas" class="fixed inset-0 pointer-events-none z-0 w-full h-full"></canvas>
+
+    <!-- Top Header -->
+    <header class="bg-dark-card/90 backdrop-blur-md border-b border-dark-border sticky top-0 z-50 w-full">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
+            <div class="flex items-center space-x-2 text-xs text-slate-300 bg-slate-900/60 px-3 py-1.5 rounded-full border border-dark-border">
+                <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+                <span>Fondo de Bikini · Guía HTML & CSS</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Stepper Navigation -->
+    <div class="max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <nav class="bg-dark-card/70 border border-emerald-900/40 rounded-2xl p-4 sm:p-5 shadow-xl overflow-x-auto sticky top-20 z-40 backdrop-blur-md" id="stepper" aria-label="Progreso de la guía">
+            <div class="flex items-center min-w-[1180px] sm:min-w-0">
+                <button onclick="switchTab('introduccion')" data-step="introduccion" class="step-circle flex-shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-all duration-200">1</button>
+                <div data-line class="step-line flex-1 h-0.5 mx-1 bg-slate-700 transition-colors duration-300"></div>
+                <button onclick="switchTab('resultado')" data-step="resultado" class="step-circle flex-shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-all duration-200">2</button>
+                <div data-line class="step-line flex-1 h-0.5 mx-1 bg-slate-700 transition-colors duration-300"></div>
+                <button onclick="switchTab('estructura')" data-step="estructura" class="step-circle flex-shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-all duration-200">3</button>
+                <div data-line class="step-line flex-1 h-0.5 mx-1 bg-slate-700 transition-colors duration-300"></div>
+                <button onclick="switchTab('base')" data-step="base" class="step-circle flex-shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-all duration-200">4</button>
+                <div data-line class="step-line flex-1 h-0.5 mx-1 bg-slate-700 transition-colors duration-300"></div>
+                <button onclick="switchTab('nav')" data-step="nav" class="step-circle flex-shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-all duration-200">5</button>
+                <div data-line class="step-line flex-1 h-0.5 mx-1 bg-slate-700 transition-colors duration-300"></div>
+                <button onclick="switchTab('header')" data-step="header" class="step-circle flex-shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-all duration-200">6</button>
+                <div data-line class="step-line flex-1 h-0.5 mx-1 bg-slate-700 transition-colors duration-300"></div>
+                <button onclick="switchTab('titulo')" data-step="titulo" class="step-circle flex-shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-all duration-200">7</button>
+                <div data-line class="step-line flex-1 h-0.5 mx-1 bg-slate-700 transition-colors duration-300"></div>
+                <button onclick="switchTab('tarjetas')" data-step="tarjetas" class="step-circle flex-shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-all duration-200">8</button>
+                <div data-line class="step-line flex-1 h-0.5 mx-1 bg-slate-700 transition-colors duration-300"></div>
+                <button onclick="switchTab('footer')" data-step="footer" class="step-circle flex-shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-all duration-200">9</button>
+                <div data-line class="step-line flex-1 h-0.5 mx-1 bg-slate-700 transition-colors duration-300"></div>
+                <button onclick="switchTab('github')" data-step="github" class="step-circle flex-shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-all duration-200">10</button>
+                <div data-line class="step-line flex-1 h-0.5 mx-1 bg-slate-700 transition-colors duration-300"></div>
+                <button onclick="switchTab('pages')" data-step="pages" class="step-circle flex-shrink-0 w-9 h-9 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-all duration-200">11</button>
+            </div>
+            <div class="grid grid-cols-11 gap-1 mt-2 min-w-[1180px] sm:min-w-0">
+                <span class="step-label text-[9px] sm:text-[11px] font-medium text-center text-slate-400 transition-colors duration-300">Intro</span>
+                <span class="step-label text-[9px] sm:text-[11px] font-medium text-center text-slate-400 transition-colors duration-300">Vista previa</span>
+                <span class="step-label text-[9px] sm:text-[11px] font-medium text-center text-slate-400 transition-colors duration-300">Carpetas</span>
+                <span class="step-label text-[9px] sm:text-[11px] font-medium text-center text-slate-400 transition-colors duration-300">Base</span>
+                <span class="step-label text-[9px] sm:text-[11px] font-medium text-center text-slate-400 transition-colors duration-300">Nav</span>
+                <span class="step-label text-[9px] sm:text-[11px] font-medium text-center text-slate-400 transition-colors duration-300">Header</span>
+                <span class="step-label text-[9px] sm:text-[11px] font-medium text-center text-slate-400 transition-colors duration-300">Título</span>
+                <span class="step-label text-[9px] sm:text-[11px] font-medium text-center text-slate-400 transition-colors duration-300">Tarjetas</span>
+                <span class="step-label text-[9px] sm:text-[11px] font-medium text-center text-slate-400 transition-colors duration-300">Footer</span>
+                <span class="step-label text-[9px] sm:text-[11px] font-medium text-center text-slate-400 transition-colors duration-300">GitHub</span>
+                <span class="step-label text-[9px] sm:text-[11px] font-medium text-center text-slate-400 transition-colors duration-300">Pages</span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Container -->
+    <div class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- Tab Contents -->
+        <main class="min-w-0">
+
+            <!-- TAB 0: INTRODUCCIÓN -->
+            <section id="tab-introduccion" class="tab-content space-y-4 block">
+                <div class="bg-dark-card border border-dark-border rounded-xl p-5">
+                    <h2 class="text-xl font-display font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-book-open text-brand-500"></i>
+                        Introducción a HTML y CSS
+                    </h2>
+                    <p class="text-sm text-slate-400 mt-2">Conoce las etiquetas y propiedades que dan vida a la página de personajes de <strong class="text-white">Fondo de Bikini</strong> antes de explorar su código.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <article class="bg-dark-card border border-dark-border rounded-xl p-5 space-y-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                                <i class="fa-brands fa-html5 text-orange-500"></i>
+                                ¿Qué es HTML?
+                            </h3>
+                            <p class="text-sm text-slate-300 mt-2">HTML organiza el contenido de la página: qué es la barra de navegación, qué es el banner, qué es cada tarjeta de personaje y qué es el pie de página.</p>
+                        </div>
+
+                        <div>
+                            <h4 class="text-sm font-semibold text-orange-300 mb-2">Etiquetas utilizadas en este proyecto</h4>
+                            <table class="w-full table-fixed text-left text-sm">
+                                <thead class="border-b border-dark-border text-slate-400">
+                                    <tr>
+                                        <th scope="col" class="w-2/5 py-2 pr-2 font-medium">Etiqueta</th>
+                                        <th scope="col" class="py-2 font-medium">Uso en la página</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-slate-300">
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-orange-300">&lt;nav&gt;</code></td><td class="py-2 align-top break-words">Barra de navegación superior</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-orange-300">&lt;header&gt;</code></td><td class="py-2 align-top break-words">Contenedor del banner</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-orange-300">&lt;main&gt;</code></td><td class="py-2 align-top break-words">Contenido principal</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-orange-300">&lt;section&gt;</code></td><td class="py-2 align-top break-words">Título y grilla de personajes</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-orange-300">&lt;article&gt;</code></td><td class="py-2 align-top break-words">Tarjeta individual de cada personaje</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-orange-300">&lt;footer&gt;</code></td><td class="py-2 align-top break-words">Pie de página con enlaces y redes</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-orange-300">&lt;h1&gt;·&lt;h2&gt;·&lt;h3&gt;</code></td><td class="py-2 align-top break-words">Títulos de secciones y personajes</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-orange-300">&lt;p&gt;</code></td><td class="py-2 align-top break-words">Descripciones de cada personaje</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-orange-300">&lt;img&gt;</code></td><td class="py-2 align-top break-words">Logo, banner y fotos de personajes</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-orange-300">&lt;ul&gt; / &lt;li&gt;</code></td><td class="py-2 align-top break-words">Menú y listas del pie de página</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-orange-300">&lt;a&gt;</code></td><td class="py-2 align-top break-words">Enlaces de navegación y redes sociales</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-orange-300">&lt;div&gt;</code></td><td class="py-2 align-top break-words">Contenedores de estilo (logo, tarjetas, columnas)</td></tr>
+                                    <tr><td class="py-2 pr-2 align-top"><code class="break-all text-orange-300">&lt;svg&gt; / &lt;path&gt;</code></td><td class="py-2 align-top break-words">Íconos de redes sociales</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="border-t border-dark-border pt-3">
+                            <h4 class="text-sm font-semibold text-orange-300 mb-2">Atributos HTML del proyecto</h4>
+                            <p class="text-sm text-slate-300"><code class="text-orange-300">class</code> asigna estilos; <code class="text-orange-300">src</code> indica la ruta de una imagen; <code class="text-orange-300">alt</code> describe la imagen; <code class="text-orange-300">href</code> indica la ruta de un enlace o del CSS; <code class="text-orange-300">rel</code> y <code class="text-orange-300">type</code> configuran el ícono de pestaña (favicon); <code class="text-orange-300">aria-label</code> describe los íconos de redes para lectores de pantalla; <code class="text-orange-300">lang</code>, <code class="text-orange-300">charset</code>, <code class="text-orange-300">name</code> y <code class="text-orange-300">content</code> aportan información del documento.</p>
+                        </div>
+                    </article>
+
+                    <article class="bg-dark-card border border-dark-border rounded-xl p-5 space-y-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2">
+                                <i class="fa-brands fa-css3-alt text-emerald-400"></i>
+                                ¿Qué es CSS?
+                            </h3>
+                            <p class="text-sm text-slate-300 mt-2">CSS define la apariencia: el azul de la barra de navegación, la grilla de tarjetas que se acomoda sola según el tamaño de pantalla, y las animaciones al pasar el mouse. Todo vive en <code class="text-emerald-300">CSS/style.css</code>.</p>
+                        </div>
+
+                        <div>
+                            <h4 class="text-sm font-semibold text-emerald-300 mb-2">Propiedades CSS utilizadas</h4>
+                            <table class="w-full table-fixed text-left text-sm">
+                                <thead class="border-b border-dark-border text-slate-400">
+                                    <tr>
+                                        <th scope="col" class="w-2/5 py-2 pr-2 font-medium">Propiedad</th>
+                                        <th scope="col" class="py-2 font-medium">Uso en la página</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-slate-300">
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-emerald-300">display: flex</code></td><td class="py-2 align-top break-words">Barra de navegación y pie de página</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-emerald-300">display: grid</code></td><td class="py-2 align-top break-words">Grilla de tarjetas de personajes</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-emerald-300">grid-template-columns</code></td><td class="py-2 align-top break-words">Columnas automáticas con <code class="text-emerald-300">repeat(auto-fit, minmax())</code></td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-emerald-300">box-shadow</code></td><td class="py-2 align-top break-words">Sombra de tarjetas y barra de navegación</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-emerald-300">transform / transition</code></td><td class="py-2 align-top break-words">Efecto al pasar el mouse sobre tarjetas y redes</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-emerald-300">::after / position</code></td><td class="py-2 align-top break-words">Línea animada bajo los enlaces del menú</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-emerald-300">text-shadow / -webkit-text-stroke</code></td><td class="py-2 align-top break-words">Efecto de título estilo "Bob Esponja"</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-emerald-300">object-fit: cover</code></td><td class="py-2 align-top break-words">Recorte proporcional de imágenes</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-emerald-300">border-radius</code></td><td class="py-2 align-top break-words">Bordes redondeados de tarjetas y botones de redes</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-emerald-300">gap</code></td><td class="py-2 align-top break-words">Espacio entre elementos del menú y la grilla</td></tr>
+                                    <tr class="border-b border-dark-border/70"><td class="py-2 pr-2 align-top"><code class="break-all text-emerald-300">@media</code></td><td class="py-2 align-top break-words">Adaptación del pie de página a móviles</td></tr>
+                                    <tr><td class="py-2 pr-2 align-top"><code class="break-all text-emerald-300">box-sizing: border-box</code></td><td class="py-2 align-top break-words">Reset global de márgenes y relleno</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="border-t border-dark-border pt-3">
+                            <h4 class="text-sm font-semibold text-emerald-300 mb-2">¿Cómo trabajan juntos?</h4>
+                            <p class="text-sm text-slate-300">Cada <code class="text-orange-300">&lt;article class="tarjeta-personaje"&gt;</code> del HTML recibe su estilo gracias a la clase <code class="text-emerald-300">.tarjeta-personaje</code> del CSS: fondo blanco, sombra, bordes redondeados y una animación al pasar el mouse.</p>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- TAB 1: RESULTADO -->
+            <section id="tab-resultado" class="tab-content space-y-4 hidden">
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-display font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-window-restore text-brand-500"></i>
+                            Página Original (Vista Previa Interactiva)
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Así se ve tu proyecto "Fondo de Bikini" renderizado en el navegador (imágenes reales de tu carpeta <code class="text-emerald-300">img/</code>).</p>
+                    </div>
+                    <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs px-2.5 py-1 rounded-md font-mono hidden sm:inline-block">
+                        Status: Online
+                    </span>
+                </div>
+
+                <!-- Simulation Wrapper -->
+                <div class="border-2 border-dark-border rounded-xl overflow-hidden shadow-2xl bg-white">
+                    <!-- Browser Bar Header -->
+                    <div class="bg-slate-900 border-b border-slate-700 px-4 py-2.5 flex items-center space-x-2">
+                        <div class="flex space-x-1.5">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        </div>
+                        <div class="flex-1 ml-4 bg-slate-800 rounded-md text-xs font-mono text-slate-300 px-3 py-1 flex items-center justify-between overflow-hidden">
+                            <span class="truncate">https://tu-usuario.github.io/fondo-de-bikini/index.html</span>
+                            <i class="fa-solid fa-lock text-emerald-400 text-xs ml-2"></i>
+                        </div>
+                    </div>
+
+                    <!-- Rendered Simulated Page Content -->
+                    <div class="preview-body max-h-[650px] overflow-y-auto">
+                        <nav class="preview-navbar">
+                            <div class="logo"><img src="img/logo.webp" alt="Logo de Fondo de Bikini"></div>
+                            <ul>
+                                <li><a href="#">Inicio</a></li>
+                                <li><a href="#">Personajes</a></li>
+                                <li><a href="#">Episodios</a></li>
+                                <li><a href="#">Contacto</a></li>
+                            </ul>
+                        </nav>
+
+                        <header>
+                            <img class="preview-banner" src="img/banner.jpeg" alt="Banner Fondo de Bikini">
+                        </header>
+
+                        <main>
+                            <section class="preview-titulo-seccion">
+                                <h1>Personajes de Fondo de Bikini</h1>
+                                <p>Explora los personajes más icónicos de "Bob Esponja Pantalones Cuadrados".</p>
+                            </section>
+
+                            <section class="preview-grid">
+                                <article class="preview-tarjeta">
+                                    <div class="img-container"><img src="img/bob esponja.webp" alt="Bob Esponja"></div>
+                                    <div class="info"><h2>Bob Esponja</h2><p>Cocinero del Crustáceo Cascarudo</p></div>
+                                </article>
+                                <article class="preview-tarjeta">
+                                    <div class="img-container"><img src="img/patricio.webp" alt="Patricio Estrella"></div>
+                                    <div class="info"><h2>Patricio</h2><p>Mejor amigo, vive bajo una roca</p></div>
+                                </article>
+                                <article class="preview-tarjeta">
+                                    <div class="img-container"><img src="img/calamardo.png" alt="Calamardo Tentáculos"></div>
+                                    <div class="info"><h2>Calamardo</h2><p>Cajero y clarinetista</p></div>
+                                </article>
+                                <article class="preview-tarjeta">
+                                    <div class="img-container"><img src="img/don_Cangrejo.jpeg" alt="Don Cangrejo"></div>
+                                    <div class="info"><h2>Don Cangrejo</h2><p>Dueño del Crustáceo Cascarudo</p></div>
+                                </article>
+                                <article class="preview-tarjeta">
+                                    <div class="img-container"><img src="img/arenita.jpeg" alt="Arenita Mejillas"></div>
+                                    <div class="info"><h2>Arenita</h2><p>Científica e inventora</p></div>
+                                </article>
+                                <article class="preview-tarjeta">
+                                    <div class="img-container"><img src="img/Plankton.jpeg" alt="Plankton"></div>
+                                    <div class="info"><h2>Plankton</h2><p>Dueño del Balde de Carnada</p></div>
+                                </article>
+                                <article class="preview-tarjeta">
+                                    <div class="img-container"><img src="img/Gary.webp" alt="Gary el Caracol"></div>
+                                    <div class="info"><h2>Gary</h2><p>Mascota de Bob Esponja</p></div>
+                                </article>
+                                <article class="preview-tarjeta">
+                                    <div class="img-container"><img src="img/señora.webp" alt="Señora Puff"></div>
+                                    <div class="info"><h2>Señora Puff</h2><p>Instructora de navegación</p></div>
+                                </article>
+                            </section>
+                        </main>
+
+                        <footer class="preview-footer">
+                            <p>&copy; 2026 Fondo de Bikini. Todos los derechos reservados.</p>
+                            <span class="autor">Hecho con 💛 por Luz Eliana Martínez</span>
+                        </footer>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: ESTRUCTURA DE CARPETAS -->
+            <section id="tab-estructura" class="tab-content space-y-4 hidden">
+                <div class="bg-dark-card border border-dark-border rounded-xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-xl font-display font-bold text-white flex items-center gap-2 mb-1">
+                            <i class="fa-solid fa-folder-tree text-yellow-500"></i>
+                            Estructura del Proyecto de Archivos
+                        </h2>
+                        <p class="text-sm text-slate-400">Organiza tus archivos exactamente con esta jerarquía para que las rutas relativas funcionen correctamente.</p>
+                    </div>
+                    <button onclick="downloadImgZip()" id="btn-download-img" class="bg-brand-500 hover:bg-brand-400 text-black text-xs px-4 py-2.5 rounded-lg font-semibold transition-all shadow-lg flex items-center gap-2 flex-shrink-0">
+                        <i class="fa-solid fa-download text-sm"></i>
+                        <span>Descargar carpeta img (.ZIP)</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Tree Visualizer -->
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-5 font-mono text-sm">
+                        <div class="text-xs text-slate-400 uppercase tracking-wider mb-3 font-sans font-semibold">Directorio Raíz</div>
+
+                        <div class="space-y-2 text-slate-300">
+                            <div class="flex items-center text-yellow-400 font-bold">
+                                <i class="fa-regular fa-folder-open mr-2"></i> HTML1 BOB SPONJA/
+                            </div>
+                            <div class="ml-6 space-y-2 border-l border-slate-700 pl-4">
+                                <div class="flex items-center text-orange-400">
+                                    <i class="fa-regular fa-file-code mr-2"></i> index.html
+                                </div>
+                                <div class="flex items-center text-yellow-400">
+                                    <i class="fa-regular fa-folder mr-2"></i> CSS/
+                                </div>
+                                <div class="ml-6 border-l border-slate-700 pl-4">
+                                    <div class="flex items-center text-emerald-400">
+                                        <i class="fa-regular fa-file-lines mr-2"></i> style.css
+                                    </div>
+                                </div>
+                                <div class="flex items-center text-yellow-400">
+                                    <i class="fa-regular fa-folder mr-2"></i> img/
+                                </div>
+                                <div class="ml-6 border-l border-slate-700 pl-4 space-y-1.5 text-emerald-400 text-xs">
+                                    <div class="flex items-center"><i class="fa-regular fa-file-image mr-2"></i> logo.png <span class="text-slate-500 ml-1">(favicon)</span></div>
+                                    <div class="flex items-center"><i class="fa-regular fa-file-image mr-2"></i> logo.webp</div>
+                                    <div class="flex items-center"><i class="fa-regular fa-file-image mr-2"></i> banner.jpeg</div>
+                                    <div class="flex items-center"><i class="fa-regular fa-file-image mr-2"></i> bob esponja.webp</div>
+                                    <div class="flex items-center"><i class="fa-regular fa-file-image mr-2"></i> patricio.webp</div>
+                                    <div class="flex items-center"><i class="fa-regular fa-file-image mr-2"></i> calamardo.png</div>
+                                    <div class="flex items-center"><i class="fa-regular fa-file-image mr-2"></i> don_Cangrejo.jpeg</div>
+                                    <div class="flex items-center"><i class="fa-regular fa-file-image mr-2"></i> arenita.jpeg</div>
+                                    <div class="flex items-center"><i class="fa-regular fa-file-image mr-2"></i> Plankton.jpeg</div>
+                                    <div class="flex items-center"><i class="fa-regular fa-file-image mr-2"></i> Gary.webp</div>
+                                    <div class="flex items-center"><i class="fa-regular fa-file-image mr-2"></i> señora.webp</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Explanations -->
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-5 space-y-4">
+                        <h3 class="text-base font-semibold text-white">Notas Importantes de Rutas:</h3>
+
+                        <div class="space-y-3 text-sm text-slate-300">
+                            <div class="p-3 bg-amber-500/10 rounded-lg border border-amber-500/30">
+                                <strong class="text-amber-400 block mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Mayúsculas y minúsculas importan:</strong>
+                                La carpeta se llama <code class="text-yellow-300 bg-slate-900 px-1 py-0.5 rounded">CSS</code> (mayúsculas), así que el enlace debe ser exactamente `<code class="text-xs">&lt;link rel="stylesheet" href="CSS/style.css"&gt;</code>`. En Windows un error de mayúsculas pasa desapercibido, pero <strong class="text-white">GitHub Pages sí distingue mayúsculas de minúsculas</strong> y el sitio se vería sin estilos al publicarlo.
+                            </div>
+
+                            <div class="p-3 bg-slate-800/80 rounded-lg border border-slate-700">
+                                <div class="flex justify-between items-center mb-1">
+                                    <strong class="text-emerald-400">Ruta de las Imágenes:</strong>
+                                    <button onclick="downloadImgZip()" class="text-xs text-emerald-400 hover:underline flex items-center gap-1">
+                                        <i class="fa-solid fa-file-arrow-down"></i> Descargar img/
+                                    </button>
+                                </div>
+                                `<code class="text-xs">&lt;img src="img/bob esponja.webp"&gt;</code>`<br>
+                                Todas las imágenes van dentro de <code class="text-yellow-300 bg-slate-900 px-1 py-0.5 rounded">img</code>. Respeta nombres, espacios y extensiones (.jpeg, .jpg, .png, .webp) exactamente como aparecen aquí.
+                            </div>
+
+                            <div class="p-3 bg-slate-800/80 rounded-lg border border-slate-700">
+                                <strong class="text-emerald-400 block mb-1">Nombre del Archivo HTML Principal:</strong>
+                                Debe llamarse estrictamente <code class="text-yellow-300 bg-slate-900 px-1 py-0.5 rounded">index.html</code> (en minúsculas) para que <strong>GitHub Pages</strong> lo reconozca automáticamente como la portada.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PARTE 1: ESTRUCTURA BÁSICA Y CONEXIÓN AL CSS -->
+            <section id="tab-base" class="tab-content space-y-4 hidden">
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-display font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-layer-group text-brand-500"></i>
+                            Parte 1 · Estructura básica y conexión al CSS
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">El esqueleto que debe tener <code class="text-orange-300">index.html</code> antes de agregar cualquier bloque de contenido.</p>
+                    </div>
+                </div>
+
+                <div class="bg-dark-card border border-dark-border rounded-xl p-5">
+                    <p class="text-sm text-slate-300">Crea el archivo <code class="text-yellow-300 bg-slate-900 px-1 py-0.5 rounded">index.html</code> con esta base: el <code class="text-orange-300">&lt;head&gt;</code> declara el documento y, con <code class="text-orange-300">&lt;link rel="stylesheet"&gt;</code>, lo conecta con <code class="text-emerald-300">CSS/style.css</code>. Todo el contenido (nav, header, main y footer) se escribirá dentro de <code class="text-orange-300">&lt;body&gt;&lt;/body&gt;</code> en las siguientes partes de esta guía.</p>
+                </div>
+
+                <div class="relative bg-dark-code border border-dark-border rounded-xl overflow-hidden shadow-xl">
+                    <div class="flex items-center gap-2 px-4 py-2 border-b border-dark-border text-xs font-mono text-orange-300"><i class="fa-brands fa-html5"></i> index.html</div>
+                    <pre class="p-4 text-xs sm:text-sm font-mono text-slate-300 overflow-x-auto leading-relaxed"><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="es"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Fondo de Bikini - Personajes&lt;/title&gt;
+    &lt;link rel="shortcut icon" href="img/logo.png" type="image/x-icon"&gt;
+    &lt;link rel="stylesheet" href="CSS/style.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+    &lt;!-- Aquí irán, en este orden: nav, header, main y footer --&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                </div>
+
+                <div class="relative bg-dark-code border border-dark-border rounded-xl overflow-hidden shadow-xl">
+                    <div class="flex items-center gap-2 px-4 py-2 border-b border-dark-border text-xs font-mono text-emerald-300"><i class="fa-brands fa-css3-alt"></i> CSS/style.css</div>
+                    <pre class="p-4 text-xs sm:text-sm font-mono text-slate-300 overflow-x-auto leading-relaxed"><code>/* ==========================================================
+   Fondo de Bikini — Océano moderno y vibrante
+   ========================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap');
+
+:root {
+    --azul-profundo: #04395e;
+    --azul-marino: #0477bf;
+    --azul-cielo: #38bdf8;
+    --turquesa: #14b8a6;
+    --coral: #ff7a59;
+    --amarillo-sol: #ffd23f;
+    --fondo-pagina: #eafcff;
+    --texto-principal: #1e3a4c;
+    --texto-suave: #4a6373;
+    --blanco: #ffffff;
+}
+
+/* Reset global */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Quicksand', 'Segoe UI', sans-serif;
+    background-color: var(--fondo-pagina);
+    color: var(--texto-principal);
+    overflow-x: hidden;
+}</code></pre>
+                </div>
+                <p class="text-xs text-slate-500 px-1">El <code class="text-slate-400">@import</code> trae las fuentes <code class="text-slate-400">Baloo 2</code> (títulos redondeados) y <code class="text-slate-400">Quicksand</code> (texto). Las variables en <code class="text-slate-400">:root</code> guardan la paleta de colores del "Océano vibrante" para reutilizarla en todo el archivo sin repetir códigos de color. El reset (<code class="text-slate-400">*</code>) quita los márgenes y relleno que el navegador agrega por defecto; <code class="text-slate-400">box-sizing: border-box</code> hace que el padding no sume al ancho de los elementos.</p>
+            </section>
+
+            <!-- PARTE 2: BLOQUE NAV -->
+            <section id="tab-nav" class="tab-content space-y-4 hidden">
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-display font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-bars text-sky-400"></i>
+                            Parte 2 · Barra de navegación (nav)
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Agrega este bloque justo después de <code class="text-orange-300">&lt;body&gt;</code>.</p>
+                    </div>
+                </div>
+
+                <div class="relative bg-dark-code border border-dark-border rounded-xl overflow-hidden shadow-xl">
+                    <div class="flex items-center gap-2 px-4 py-2 border-b border-dark-border text-xs font-mono text-orange-300"><i class="fa-brands fa-html5"></i> index.html</div>
+                    <pre class="p-4 text-xs sm:text-sm font-mono text-slate-300 overflow-x-auto leading-relaxed"><code>    &lt;nav class="navbar"&gt;
+        &lt;div class="logo"&gt;
+            &lt;img src="img/logo.webp" alt="Logo de Fondo de Bikini"&gt;
+        &lt;/div&gt;
+        &lt;ul class="nav-links"&gt;
+            &lt;li&gt;&lt;a href="index.html"&gt;Inicio&lt;/a&gt;&lt;/li&gt;
+            &lt;li&gt;&lt;a href="personajes.html"&gt;Personajes&lt;/a&gt;&lt;/li&gt;
+            &lt;li&gt;&lt;a href="episodios.html"&gt;Episodios&lt;/a&gt;&lt;/li&gt;
+            &lt;li&gt;&lt;a href="contacto.html"&gt;Contacto&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/nav&gt;</code></pre>
+                </div>
+
+                <div class="relative bg-dark-code border border-dark-border rounded-xl overflow-hidden shadow-xl">
+                    <div class="flex items-center gap-2 px-4 py-2 border-b border-dark-border text-xs font-mono text-emerald-300"><i class="fa-brands fa-css3-alt"></i> CSS/style.css</div>
+                    <pre class="p-4 text-xs sm:text-sm font-mono text-slate-300 overflow-x-auto leading-relaxed"><code>/* Menú de navegación */
+.navbar {
+    background: linear-gradient(100deg, var(--azul-profundo), var(--azul-marino) 65%, var(--turquesa));
+    padding: 12px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 6px 18px rgba(4, 57, 94, 0.25);
+}
+
+.logo {
+    width: 54px;
+    height: 54px;
+    background-color: var(--blanco);
+    border-radius: 50%;
+    padding: 4px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+}
+
+.logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    list-style: none;
+    flex-wrap: wrap;
+}
+
+.nav-links a {
+    color: var(--blanco);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 8px 18px;
+    border-radius: 999px;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+}
+
+.nav-links a:hover {
+    background-color: var(--amarillo-sol);
+    color: var(--azul-profundo);
+    transform: translateY(-2px);
+}</code></pre>
+                </div>
+                <p class="text-xs text-slate-500 px-1">Ahora <code class="text-slate-400">.logo</code> es un círculo blanco de tamaño fijo (la imagen se recorta dentro con <code class="text-slate-400">object-fit: cover</code>); <code class="text-slate-400">position: sticky; top: 0;</code> deja el menú pegado arriba al hacer scroll; y en <code class="text-slate-400">.nav-links a:hover</code> el enlace se convierte en una "píldora" amarilla en vez de subrayarse.</p>
+            </section>
+
+            <!-- PARTE 3: BLOQUE HEADER / BANNER -->
+            <section id="tab-header" class="tab-content space-y-4 hidden">
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-display font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-image text-cyan-400"></i>
+                            Parte 3 · Encabezado y banner (header)
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Agrega este bloque justo después de <code class="text-orange-300">&lt;/nav&gt;</code>.</p>
+                    </div>
+                </div>
+
+                <div class="relative bg-dark-code border border-dark-border rounded-xl overflow-hidden shadow-xl">
+                    <div class="flex items-center gap-2 px-4 py-2 border-b border-dark-border text-xs font-mono text-orange-300"><i class="fa-brands fa-html5"></i> index.html</div>
+                    <pre class="p-4 text-xs sm:text-sm font-mono text-slate-300 overflow-x-auto leading-relaxed"><code>    &lt;!-- Header y Banner --&gt;
+    &lt;header&gt;
+        &lt;img class="banner" src="img/banner.jpeg" alt="Banner Fondo de Bikini"&gt;
+    &lt;/header&gt;</code></pre>
+                </div>
+
+                <div class="relative bg-dark-code border border-dark-border rounded-xl overflow-hidden shadow-xl">
+                    <div class="flex items-center gap-2 px-4 py-2 border-b border-dark-border text-xs font-mono text-emerald-300"><i class="fa-brands fa-css3-alt"></i> CSS/style.css</div>
+                    <pre class="p-4 text-xs sm:text-sm font-mono text-slate-300 overflow-x-auto leading-relaxed"><code>/* Banner y encabezado */
+header {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.banner {
+    width: 100%;
+    height: 320px;
+    object-fit: cover;
+    display: block;
+}
+
+header::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    width: 100%;
+    height: 70px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120' preserveAspectRatio='none'%3E%3Cpath d='M0,40 C360,110 1080,-10 1440,60 L1440,120 L0,120 Z' fill='%23eafcff'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+    pointer-events: none;
+}</code></pre>
+                </div>
+                <p class="text-xs text-slate-500 px-1">Ahora la imagen usa <code class="text-slate-400">object-fit: cover</code> para recortarse sin distorsionarse dentro de los 320px de alto. El pseudo-elemento <code class="text-slate-400">header::after</code> dibuja una "ola" (una imagen SVG en formato texto, llamada <em>data URI</em>) que se superpone al borde inferior del banner usando el mismo color que el fondo de la página (<code class="text-slate-400">#eafcff</code>), creando el efecto de que el agua se mezcla con el contenido.</p>
+            </section>
+
+            <!-- PARTE 4: TÍTULO DE SECCIÓN -->
+            <section id="tab-titulo" class="tab-content space-y-4 hidden">
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-display font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-heading text-yellow-400"></i>
+                            Parte 4 · Contenedor principal y título de sección
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Agrega este bloque justo después de <code class="text-orange-300">&lt;/header&gt;</code>. Abre <code class="text-orange-300">&lt;main&gt;</code>, pero todavía no lo cierres: la grilla de personajes de la Parte 5 va dentro de él.</p>
+                    </div>
+                </div>
+
+                <div class="relative bg-dark-code border border-dark-border rounded-xl overflow-hidden shadow-xl">
+                    <div class="flex items-center gap-2 px-4 py-2 border-b border-dark-border text-xs font-mono text-orange-300"><i class="fa-brands fa-html5"></i> index.html</div>
+                    <pre class="p-4 text-xs sm:text-sm font-mono text-slate-300 overflow-x-auto leading-relaxed"><code>    &lt;!-- Sección Principal de Personajes --&gt;
+    &lt;main class="contenedor-principal"&gt;
+
+        &lt;section class="titulo-seccion"&gt;
+            &lt;h1&gt;Personajes de Fondo de Bikini&lt;/h1&gt;
+            &lt;p&gt;Explora los personajes más icónicos de la serie animada "Bob Esponja Pantalones Cuadrados".&lt;/p&gt;
+        &lt;/section&gt;
+
+        &lt;!-- La sección "grid-personajes" de la Parte 5 va aquí abajo --&gt;
+
+    &lt;/main&gt;</code></pre>
+                </div>
+
+                <div class="relative bg-dark-code border border-dark-border rounded-xl overflow-hidden shadow-xl">
+                    <div class="flex items-center gap-2 px-4 py-2 border-b border-dark-border text-xs font-mono text-emerald-300"><i class="fa-brands fa-css3-alt"></i> CSS/style.css</div>
+                    <pre class="p-4 text-xs sm:text-sm font-mono text-slate-300 overflow-x-auto leading-relaxed"><code>/* Contenedor principal y título de sección */
+.contenedor-principal {
+    width: 90%;
+    max-width: 1200px;
+    margin: 10px auto 40px;
+}
+
+.titulo-seccion {
+    text-align: center;
+    margin: 20px 0 45px;
+    background-color: var(--blanco);
+    border-radius: 24px;
+    padding: 30px 20px;
+    box-shadow: 0 10px 30px rgba(4, 119, 191, 0.12);
+    border-top: 6px solid var(--turquesa);
+}
+
+.titulo-seccion h1 {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: 2.6rem;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg, var(--amarillo-sol), var(--coral));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 1px 2px 0 rgba(4, 57, 94, 0.15);
+}
+
+.titulo-seccion p {
+    color: var(--texto-suave);
+    font-size: 1.05rem;
+    margin-top: 10px;
+}</code></pre>
+                </div>
+                <p class="text-xs text-slate-500 px-1">El truco está en <code class="text-slate-400">background: linear-gradient(...)</code> junto con <code class="text-slate-400">background-clip: text</code> y <code class="text-slate-400">color: transparent</code>: el degradado de amarillo a coral se "recorta" con la forma exacta de las letras del <code class="text-slate-400">&lt;h1&gt;</code>, como si el texto fuera una ventana hacia el degradado.</p>
+            </section>
+
+            <!-- PARTE 5: GRILLA DE TARJETAS DE PERSONAJES -->
+            <section id="tab-tarjetas" class="tab-content space-y-4 hidden">
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-display font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-table-cells-large text-emerald-400"></i>
+                            Parte 5 · Grilla de tarjetas de personajes
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Este bloque va dentro de <code class="text-orange-300">&lt;main&gt;</code>, justo debajo de <code class="text-orange-300">&lt;/section&gt;</code> del título (Parte 4).</p>
+                    </div>
+                </div>
+
+                <div class="bg-dark-card border border-dark-border rounded-xl p-5">
+                    <p class="text-sm text-slate-300">Cada personaje es un <code class="text-orange-300">&lt;article class="tarjeta-personaje"&gt;</code> dentro de <code class="text-orange-300">&lt;section class="grid-personajes"&gt;</code>. Aquí tienes la primera tarjeta completa (Bob Esponja): copia ese mismo patrón y cámbiale la imagen, el nombre, el rol y la descripción para los 7 personajes restantes.</p>
+                </div>
+
+                <div class="relative bg-dark-code border border-dark-border rounded-xl overflow-hidden shadow-xl">
+                    <div class="flex items-center gap-2 px-4 py-2 border-b border-dark-border text-xs font-mono text-orange-300"><i class="fa-brands fa-html5"></i> index.html</div>
+                    <pre class="p-4 text-xs sm:text-sm font-mono text-slate-300 overflow-x-auto leading-relaxed"><code>        &lt;section class="grid-personajes"&gt;
+
+            &lt;!-- Bob Esponja --&gt;
+            &lt;article class="tarjeta-personaje"&gt;
+                &lt;div class="img-container"&gt;
+                    &lt;img src="img/bob esponja.webp" alt="Bob Esponja Pantalones Cuadrados"&gt;
+                &lt;/div&gt;
+                &lt;div class="info-personaje"&gt;
+                    &lt;h2&gt;Bob Esponja&lt;/h2&gt;
+                    &lt;p class="rol"&gt;Cocinero en el Crustáceo Cascarudo&lt;/p&gt;
+                    &lt;p&gt;Una esponja marina alegre, optimista y extremadamente trabajadora que vive en una piña con su caracol Gary.&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/article&gt;
+
+            &lt;!-- Repite este mismo &lt;article class="tarjeta-personaje"&gt; para cada personaje que falte --&gt;
+
+        &lt;/section&gt;</code></pre>
+                </div>
+
+                <details class="bg-dark-card border border-dark-border rounded-xl overflow-hidden">
+                    <summary class="cursor-pointer select-none px-5 py-3 text-sm font-semibold text-slate-200 hover:bg-slate-800/60 transition-colors">
+                        <i class="fa-solid fa-chevron-right mr-2 text-emerald-400"></i>Ver las 7 tarjetas restantes (Patricio, Calamardo, Don Cangrejo, Arenita, Plankton, Gary y Señora Puff)
+                    </summary>
+                    <div class="relative bg-dark-code border-t border-dark-border overflow-hidden">
+                        <pre class="p-4 text-xs sm:text-sm font-mono text-slate-300 overflow-x-auto leading-relaxed"><code>            &lt;!-- Patricio Estrella --&gt;
+            &lt;article class="tarjeta-personaje"&gt;
+                &lt;div class="img-container"&gt;
+                    &lt;img src="img/patricio.webp" alt="Patricio Estrella"&gt;
+                &lt;/div&gt;
+                &lt;div class="info-personaje"&gt;
+                    &lt;h2&gt;Patricio Estrella&lt;/h2&gt;
+                    &lt;p class="rol"&gt;Mejor Amigo&lt;/p&gt;
+                    &lt;p&gt;Una estrella de mar perezosa pero leal. Es el mejor amigo de Bob Esponja y vive debajo de una roca.&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/article&gt;
+
+            &lt;!-- Calamardo Tentáculos --&gt;
+            &lt;article class="tarjeta-personaje"&gt;
+                &lt;div class="img-container"&gt;
+                    &lt;img src="img/calamardo.png" alt="Calamardo Tentáculos"&gt;
+                &lt;/div&gt;
+                &lt;div class="info-personaje"&gt;
+                    &lt;h2&gt;Calamardo&lt;/h2&gt;
+                    &lt;p class="rol"&gt;Cajero y Clarinetista&lt;/p&gt;
+                    &lt;p&gt;Un pulpo amargado que sueña con ser un artista famoso. Odia su trabajo y le molesta su vecindario.&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/article&gt;
+
+            &lt;!-- Don Cangrejo --&gt;
+            &lt;article class="tarjeta-personaje"&gt;
+                &lt;div class="img-container"&gt;
+                    &lt;img src="img/don_Cangrejo.jpeg" alt="Don Cangrejo"&gt;
+                &lt;/div&gt;
+                &lt;div class="info-personaje"&gt;
+                    &lt;h2&gt;Don Cangrejo&lt;/h2&gt;
+                    &lt;p class="rol"&gt;Dueño del Crustáceo Cascarudo&lt;/p&gt;
+                    &lt;p&gt;Un cangrejo extremadamente tacaño obsesionado con el dinero y protector de la fórmula secreta.&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/article&gt;
+
+            &lt;!-- Arenita Mejillas --&gt;
+            &lt;article class="tarjeta-personaje"&gt;
+                &lt;div class="img-container"&gt;
+                    &lt;img src="img/arenita.jpeg" alt="Arenita Mejillas"&gt;
+                &lt;/div&gt;
+                &lt;div class="info-personaje"&gt;
+                    &lt;h2&gt;Arenita Mejillas&lt;/h2&gt;
+                    &lt;p class="rol"&gt;Científica e Inventora&lt;/p&gt;
+                    &lt;p&gt;Una ardilla de Texas experta en karate que vive bajo el agua usando un traje de buzo especial.&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/article&gt;
+
+            &lt;!-- Plankton --&gt;
+            &lt;article class="tarjeta-personaje"&gt;
+                &lt;div class="img-container"&gt;
+                    &lt;img src="img/Plankton.jpeg" alt="Sheldon J. Plankton"&gt;
+                &lt;/div&gt;
+                &lt;div class="info-personaje"&gt;
+                    &lt;h2&gt;Plankton&lt;/h2&gt;
+                    &lt;p class="rol"&gt;Propietario del Balde de Carnada&lt;/p&gt;
+                    &lt;p&gt;El rival de Don Cangrejo. Pasa todo su tiempo intentando robar la fórmula secreta de la Cangreburguer.&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/article&gt;
+
+            &lt;!-- Gary el Caracol --&gt;
+            &lt;article class="tarjeta-personaje"&gt;
+                &lt;div class="img-container"&gt;
+                    &lt;img src="img/Gary.webp" alt="Gary el Caracol"&gt;
+                &lt;/div&gt;
+                &lt;div class="info-personaje"&gt;
+                    &lt;h2&gt;Gary&lt;/h2&gt;
+                    &lt;p class="rol"&gt;Mascota de Bob Esponja&lt;/p&gt;
+                    &lt;p&gt;Un caracol marino inteligente que se comporta como un gato y suele dar sabios consejos a Bob.&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/article&gt;
+
+            &lt;!-- Señora Puff --&gt;
+            &lt;article class="tarjeta-personaje"&gt;
+                &lt;div class="img-container"&gt;
+                    &lt;img src="img/señora.webp" alt="Señora Puff"&gt;
+                &lt;/div&gt;
+                &lt;div class="info-personaje"&gt;
+                    &lt;h2&gt;Señora Puff&lt;/h2&gt;
+                    &lt;p class="rol"&gt;Instructora de Navegación&lt;/p&gt;
+                    &lt;p&gt;Un pez erizo que dirige la escuela de canotaje y sufre constantemente por la conducción de Bob Esponja.&lt;/p&gt;
+                &lt;/div&gt;
+            &lt;/article&gt;</code></pre>
+                    </div>
+                </details>
+
+                <div class="relative bg-dark-code border border-dark-border rounded-xl overflow-hidden shadow-xl">
+                    <div class="flex items-center gap-2 px-4 py-2 border-b border-dark-border text-xs font-mono text-emerald-300"><i class="fa-brands fa-css3-alt"></i> CSS/style.css</div>
+                    <pre class="p-4 text-xs sm:text-sm font-mono text-slate-300 overflow-x-auto leading-relaxed"><code>/* Grid de personajes */
+.grid-personajes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 28px;
+}
+
+/* Tarjeta individual */
+.tarjeta-personaje {
+    background-color: var(--blanco);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(4, 57, 94, 0.1);
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.tarjeta-personaje:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 18px 35px rgba(20, 184, 166, 0.3);
+}
+
+/* Contenedor e imagen de la tarjeta */
+.img-container {
+    background-color: #e3f6fb;
+    display: flex;
+    height: 210px;
+    overflow: hidden;
+}
+
+.img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.45s ease;
+}
+
+.tarjeta-personaje:hover .img-container img {
+    transform: scale(1.1);
+}
+
+/* Información de la tarjeta */
+.info-personaje {
+    padding: 22px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-personaje h2 {
+    font-family: 'Baloo 2', sans-serif;
+    color: var(--azul-profundo);
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+}
+
+.info-personaje .rol {
+    display: inline-block;
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--blanco);
+    background-color: var(--coral);
+    margin-bottom: 12px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    letter-spacing: 0.3px;
+    width: fit-content;
+}
+
+.info-personaje p {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--texto-suave);
+}</code></pre>
+                </div>
+                <p class="text-xs text-slate-500 px-1"><code class="text-slate-400">repeat(auto-fit, minmax(260px, 1fr))</code> hace que las tarjetas se acomoden solas en cualquier tamaño de pantalla. Al pasar el mouse, <code class="text-slate-400">:hover</code> levanta la tarjeta y agranda la imagen (<code class="text-slate-400">transform: scale(1.1)</code>) dentro de su <code class="text-slate-400">.img-container</code> con <code class="text-slate-400">overflow: hidden</code>; y <code class="text-slate-400">.info-personaje .rol</code> convierte el rol del personaje en una etiqueta tipo "píldora" de color coral.</p>
+            </section>
+
+            <!-- PARTE 6: FOOTER -->
+            <section id="tab-footer" class="tab-content space-y-4 hidden">
+                <div class="bg-dark-card border border-dark-border rounded-xl p-4 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-display font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-anchor text-blue-400"></i>
+                            Parte 6 · Pie de página (footer)
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-0.5">Agrega este bloque justo después de <code class="text-orange-300">&lt;/main&gt;</code>, ya cerrado, y antes de <code class="text-orange-300">&lt;/body&gt;</code>.</p>
+                    </div>
+                </div>
+
+                <div class="relative bg-dark-code border border-dark-border rounded-xl overflow-hidden shadow-xl">
+                    <div class="flex items-center gap-2 px-4 py-2 border-b border-dark-border text-xs font-mono text-orange-300"><i class="fa-brands fa-html5"></i> index.html</div>
+                    <pre class="p-4 text-xs sm:text-sm font-mono text-slate-300 overflow-x-auto leading-relaxed"><code>    &lt;!-- Footer --&gt;
+    &lt;footer class="footer"&gt;
+        &lt;div class="footer-contenido"&gt;
+
+            &lt;div class="footer-marca"&gt;
+                &lt;img src="img/logo.webp" alt="Logo de Fondo de Bikini" class="footer-logo"&gt;
+                &lt;p&gt;Tu rincón favorito para conocer a los personajes de Fondo de Bikini, el hogar de Bob Esponja y sus amigos bajo el mar.&lt;/p&gt;
+            &lt;/div&gt;
+
+            &lt;div class="footer-col"&gt;
+                &lt;h3&gt;Enlaces&lt;/h3&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;&lt;a href="index.html"&gt;Inicio&lt;/a&gt;&lt;/li&gt;
+                    &lt;li&gt;&lt;a href="personajes.html"&gt;Personajes&lt;/a&gt;&lt;/li&gt;
+                    &lt;li&gt;&lt;a href="episodios.html"&gt;Episodios&lt;/a&gt;&lt;/li&gt;
+                    &lt;li&gt;&lt;a href="contacto.html"&gt;Contacto&lt;/a&gt;&lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+
+            &lt;div class="footer-col"&gt;
+                &lt;h3&gt;Contacto&lt;/h3&gt;
+                &lt;ul&gt;
+                    &lt;li&gt;Fondo de Bikini, Océano Pacífico&lt;/li&gt;
+                    &lt;li&gt;contacto@fondodebikini.com&lt;/li&gt;
+                &lt;/ul&gt;
+            &lt;/div&gt;
+
+            &lt;div class="footer-col"&gt;
+                &lt;h3&gt;Síguenos&lt;/h3&gt;
+                &lt;div class="footer-redes"&gt;
+                    &lt;a href="#" aria-label="Facebook"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="..."/&gt;&lt;/svg&gt;&lt;/a&gt;
+                    &lt;a href="#" aria-label="Instagram"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="..."/&gt;&lt;/svg&gt;&lt;/a&gt;
+                    &lt;a href="#" aria-label="YouTube"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="..."/&gt;&lt;/svg&gt;&lt;/a&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+
+        &lt;/div&gt;
+
+        &lt;div class="footer-inferior"&gt;
+            &lt;small&gt;&amp;copy; 2026 Fondo de Bikini. Todos los derechos reservados.&lt;/small&gt;
+            &lt;span class="autor"&gt;Hecho con 💛 por Luz Eliana Martínez&lt;/span&gt;
+        &lt;/div&gt;
+    &lt;/footer&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                </div>
+                <p class="text-xs text-slate-500 px-1">Nota: los íconos SVG de redes sociales se abreviaron aquí como <code class="text-slate-400">d="..."</code>; copia el código completo directamente desde tu archivo <code class="text-slate-400">index.html</code>.</p>
+
+                <div class="relative bg-dark-code border border-dark-border rounded-xl overflow-hidden shadow-xl">
+                    <div class="flex items-center gap-2 px-4 py-2 border-b border-dark-border text-xs font-mono text-emerald-300"><i class="fa-brands fa-css3-alt"></i> CSS/style.css</div>
+                    <pre class="p-4 text-xs sm:text-sm font-mono text-slate-300 overflow-x-auto leading-relaxed"><code>/* Pie de página */
+.footer {
+    width: 100%;
+    margin-top: 60px;
+    background: linear-gradient(165deg, var(--azul-profundo), var(--azul-marino) 70%, var(--turquesa));
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.footer-contenido {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 55px 5% 30px;
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+    gap: 35px;
+}
+
+.footer-marca .footer-logo {
+    max-width: 58px;
+    margin-bottom: 15px;
+    border-radius: 50%;
+    background-color: var(--blanco);
+    padding: 4px;
+}
+
+.footer-marca p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.footer-col h3 {
+    font-family: 'Baloo 2', sans-serif;
+    color: var(--amarillo-sol);
+    font-size: 1.05rem;
+    margin-bottom: 18px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.footer-col ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.footer-col ul li {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.footer-col a {
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.3s ease, padding-left 0.3s ease;
+}
+
+.footer-col a:hover {
+    color: var(--amarillo-sol);
+    padding-left: 4px;
+}
+
+.footer-redes { display: flex; gap: 12px; }
+
+.footer-redes a {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.footer-redes a:hover {
+    background-color: var(--coral);
+    transform: translateY(-4px) rotate(-6deg);
+}
+
+.footer-redes svg { width: 18px; height: 18px; fill: #fff; transition: fill 0.3s ease; }
+
+.footer-redes a:hover svg { fill: var(--blanco); }
+
+.footer-inferior {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 18px 5%;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.footer-inferior .autor { font-weight: 600; color: var(--amarillo-sol); }
+
+/* Responsive: ajusta banner, título, nav y footer en pantallas más chicas */
+@media (max-width: 768px) {
+    .banner { height: 220px; }
+    .titulo-seccion h1 { font-size: 2rem; }
+    .footer-contenido { grid-template-columns: 1fr 1fr; }
+    .footer-marca { grid-column: 1 / -1; }
+}
+
+@media (max-width: 600px) {
+    .navbar { justify-content: center; }
+    .nav-links { justify-content: center; width: 100%; }
+}
+
+@media (max-width: 480px) {
+    .titulo-seccion h1 { font-size: 1.6rem; letter-spacing: 0.5px; }
+    .footer-contenido { grid-template-columns: 1fr; text-align: center; }
+    .footer-redes { justify-content: center; }
+    .footer-inferior { justify-content: center; text-align: center; }
+}</code></pre>
+                </div>
+                <p class="text-xs text-slate-500 px-1">Al final del archivo se agrupan las tres reglas <code class="text-slate-400">@media</code> del proyecto: a 768px se achica el banner y el título y el footer pasa a 2 columnas; a 600px el menú se centra; y a 480px el footer pasa a una sola columna centrada. Agruparlas al final facilita encontrarlas y mantenerlas.</p>
+            </section>
+
+            <!-- TAB 5: PUBLICAR EN GITHUB -->
+            <section id="tab-github" class="tab-content space-y-6 hidden">
+                <div class="bg-dark-card border border-dark-border rounded-xl p-5">
+                    <h2 class="text-xl font-display font-bold text-white flex items-center gap-2 mb-1">
+                        <i class="fa-brands fa-github text-white"></i>
+                        Paso a Paso: Subir el Repositorio a GitHub
+                    </h2>
+                    <p class="text-sm text-slate-400">Sigue este flujo secuencial en la terminal de Visual Studio Code para subir "Fondo de Bikini" a GitHub.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Step 1 -->
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-5 relative pl-12">
+                        <div class="absolute left-4 top-5 w-6 h-6 rounded-full bg-brand-700 text-white flex items-center justify-center font-bold text-xs">1</div>
+                        <h3 class="text-base font-semibold text-white mb-2">Crear el repositorio en la web de GitHub</h3>
+                        <ol class="list-disc list-inside text-sm text-slate-300 space-y-1">
+                            <li>Ingresa a tu cuenta de <a href="https://github.com" target="_blank" class="text-brand-500 hover:underline">GitHub.com</a>.</li>
+                            <li>Haz clic en el botón verde <strong>"New"</strong> o en el símbolo <strong>"+"</strong> arriba a la derecha.</li>
+                            <li>Nombra el repositorio (ejemplo: <code class="bg-slate-800 px-1.5 py-0.5 rounded text-yellow-300">fondo-de-bikini</code>).</li>
+                            <li>Déjalo en modo <strong>Public</strong> (público) para que GitHub Pages sea gratuito.</li>
+                            <li><strong>IMPORTANTE:</strong> No marques las casillas de agregar README, .gitignore o licencia por ahora.</li>
+                            <li>Haz clic en <strong>"Create repository"</strong>.</li>
+                        </ol>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-5 relative pl-12">
+                        <div class="absolute left-4 top-5 w-6 h-6 rounded-full bg-brand-700 text-white flex items-center justify-center font-bold text-xs">2</div>
+                        <h3 class="text-base font-semibold text-white mb-2">Abrir la Terminal en Visual Studio Code</h3>
+                        <p class="text-sm text-slate-300 mb-2">Abre la carpeta <code class="bg-slate-800 px-1.5 py-0.5 rounded text-slate-200">HTML1 BOB SPONJA</code> en VS Code y abre la terminal con <code class="bg-slate-800 px-1.5 py-0.5 rounded text-slate-200">Terminal -> New Terminal</code> o el atajo <code class="bg-slate-800 px-1.5 py-0.5 rounded text-slate-200">Ctrl + ñ</code>.</p>
+                    </div>
+
+                    <!-- Step 3: Commands Sequence -->
+                    <div class="bg-dark-card border border-dark-border rounded-xl p-5 relative pl-12">
+                        <div class="absolute left-4 top-5 w-6 h-6 rounded-full bg-brand-700 text-white flex items-center justify-center font-bold text-xs">3</div>
+                        <h3 class="text-base font-semibold text-white mb-2">Ejecutar la secuencia de comandos Git</h3>
+                        <p class="text-sm text-slate-300 mb-3">Ejecuta uno a uno los siguientes comandos en tu terminal:</p>
+
+                        <div class="space-y-3 font-mono text-xs sm:text-sm">
+                            <div class="bg-dark-code border border-slate-700/60 p-3 rounded-lg">
+                                <span class="text-slate-500"># 1. Inicializar repositorio Git local</span><br>
+                                <span class="text-emerald-400">git init</span>
+                            </div>
+                            <div class="bg-dark-code border border-slate-700/60 p-3 rounded-lg">
+                                <span class="text-slate-500"># 2. Agregar todos los archivos al área de preparación</span><br>
+                                <span class="text-emerald-400">git add .</span>
+                            </div>
+                            <div class="bg-dark-code border border-slate-700/60 p-3 rounded-lg">
+                                <span class="text-slate-500"># 3. Guardar cambios con mensaje inicial</span><br>
+                                <span class="text-emerald-400">git commit -m "Initial commit"</span>
+                            </div>
+                            <div class="bg-dark-code border border-slate-700/60 p-3 rounded-lg">
+                                <span class="text-slate-500"># 4. Cambiar rama principal a 'main'</span><br>
+                                <span class="text-emerald-400">git branch -M main</span>
+                            </div>
+                            <div class="bg-dark-code border border-slate-700/60 p-3 rounded-lg min-w-0">
+                                <span class="text-slate-500"># 5. Vincular con la URL dada por GitHub (reemplaza la URL)</span><br>
+                                <span class="text-emerald-400 break-all">git remote add origin https://github.com/TU-USUARIO/TU-REPOSITORIO.git</span>
+                            </div>
+                            <div class="bg-dark-code border border-slate-700/60 p-3 rounded-lg min-w-0">
+                                <span class="text-slate-500"># 6. Subir tu código a GitHub</span><br>
+                                <span class="text-emerald-400">git push -u origin main</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 6: DESPLEGAR EN GITHUB PAGES -->
+            <section id="tab-pages" class="tab-content space-y-6 hidden">
+                <div class="bg-dark-card border border-dark-border rounded-xl p-5">
+                    <h2 class="text-xl font-display font-bold text-white flex items-center gap-2 mb-1">
+                        <i class="fa-solid fa-globe text-emerald-400"></i>
+                        Desplegar la Página con GitHub Pages
+                    </h2>
+                    <p class="text-sm text-slate-400">Activa el alojamiento gratuito de GitHub para que cualquier persona pueda visitar "Fondo de Bikini" en internet.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-dark-card border border-dark-border p-5 rounded-xl space-y-2">
+                        <div class="flex items-center space-x-2 text-emerald-400 font-bold">
+                            <span class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">1</span>
+                            <span>Acceder a Settings</span>
+                        </div>
+                        <p class="text-sm text-slate-300">Dentro de tu repositorio en GitHub, ve a la pestaña con ícono de engranaje <strong>"Settings"</strong> (Configuración).</p>
+                    </div>
+
+                    <div class="bg-dark-card border border-dark-border p-5 rounded-xl space-y-2">
+                        <div class="flex items-center space-x-2 text-emerald-400 font-bold">
+                            <span class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">2</span>
+                            <span>Ir a la sección Pages</span>
+                        </div>
+                        <p class="text-sm text-slate-300">En el menú lateral izquierdo, busca <strong>"Code and automation"</strong> y selecciona <strong>"Pages"</strong>.</p>
+                    </div>
+
+                    <div class="bg-dark-card border border-dark-border p-5 rounded-xl space-y-2">
+                        <div class="flex items-center space-x-2 text-emerald-400 font-bold">
+                            <span class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">3</span>
+                            <span>Configurar la Rama (Branch)</span>
+                        </div>
+                        <p class="text-sm text-slate-300">En <strong>"Build and deployment"</strong> -> <strong>"Branch"</strong>:</p>
+                        <ul class="list-disc list-inside text-xs text-slate-400 space-y-1">
+                            <li>Cambia el selector de <em>None</em> a <strong class="text-white">main</strong>.</li>
+                            <li>Asegúrate de que la carpeta esté en <strong class="text-white">/(root)</strong>.</li>
+                            <li>Presiona <strong class="text-emerald-400">"Save"</strong> (Guardar).</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-dark-card border border-dark-border p-5 rounded-xl space-y-2">
+                        <div class="flex items-center space-x-2 text-emerald-400 font-bold">
+                            <span class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center text-xs">4</span>
+                            <span>Obtener el Enlace Publicado</span>
+                        </div>
+                        <p class="text-sm text-slate-300">Espera de 1 a 3 minutos, recarga la página y verás un cuadro verde con la URL final de tu sitio publicado.</p>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-emerald-950/40 to-slate-900 border border-emerald-500/40 rounded-xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3 min-w-0">
+                        <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-lg flex-shrink-0">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-sm font-semibold text-white">¡Enlace web listo!</p>
+                            <p class="text-xs font-mono text-emerald-300 break-all">https://tu-usuario.github.io/fondo-de-bikini/</p>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-400 bg-slate-800/80 px-3 py-2 rounded-lg border border-slate-700 flex-shrink-0">
+                        <i class="fa-solid fa-circle-info text-emerald-400 mr-1"></i> Publicación exitosa
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-brand-500 text-black px-4 py-2.5 rounded-lg shadow-xl text-xs font-semibold flex items-center space-x-2 opacity-0 pointer-events-none transition-opacity duration-300 z-50">
+        <i class="fa-solid fa-check"></i>
+        <span id="toast-msg">Copiado al portapapeles</span>
+    </div>
+
+    <script>
+        // Tab + stepper switching logic
+        const STEPS = ['introduccion', 'resultado', 'estructura', 'base', 'nav', 'header', 'titulo', 'tarjetas', 'footer', 'github', 'pages'];
+
+        function switchTab(tabId) {
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.add('hidden'));
+
+            const activeContent = document.getElementById(`tab-${tabId}`);
+            if (activeContent) activeContent.classList.remove('hidden');
+
+            const activeIndex = STEPS.indexOf(tabId);
+            const stepper = document.getElementById('stepper');
+            if (!stepper) return;
+
+            const circles = stepper.querySelectorAll('.step-circle');
+            const lines = stepper.querySelectorAll('[data-line]');
+            const labels = stepper.querySelectorAll('.step-label');
+
+            circles.forEach((circle, i) => {
+                circle.classList.remove('is-active', 'is-done');
+                if (i === activeIndex) circle.classList.add('is-active');
+                else if (i < activeIndex) circle.classList.add('is-done');
+            });
+
+            lines.forEach((line, i) => {
+                line.classList.toggle('bg-emerald-500', i < activeIndex);
+                line.classList.toggle('bg-slate-700', i >= activeIndex);
+            });
+
+            labels.forEach((label, i) => {
+                label.classList.remove('is-active', 'is-done');
+                if (i === activeIndex) label.classList.add('is-active');
+                else if (i < activeIndex) label.classList.add('is-done');
+            });
+
+            const activeStepBtn = stepper.querySelector(`[data-step="${tabId}"]`);
+            if (activeStepBtn) activeStepBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+
+        // Estado inicial del stepper al cargar la página
+        document.addEventListener('DOMContentLoaded', () => switchTab('introduccion'));
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.innerText = message;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 2500);
+        }
+
+        // Descargar la carpeta img real del proyecto como .ZIP
+        async function downloadImgZip() {
+            const btn = document.getElementById('btn-download-img');
+            const originalText = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> <span>Generando ZIP...</span>`;
+            }
+
+            try {
+                const zip = new JSZip();
+                const imgFolder = zip.folder("img");
+
+                const imagesToFetch = [
+                    "logo.png",
+                    "logo.webp",
+                    "banner.jpeg",
+                    "bob esponja.webp",
+                    "patricio.webp",
+                    "calamardo.png",
+                    "don_Cangrejo.jpeg",
+                    "arenita.jpeg",
+                    "Plankton.jpeg",
+                    "Gary.webp",
+                    "señora.webp"
+                ];
+
+                for (const name of imagesToFetch) {
+                    const response = await fetch(encodeURI(`img/${name}`));
+                    const blob = await response.blob();
+                    imgFolder.file(name, blob);
+                }
+
+                const zipContent = await zip.generateAsync({ type: "blob" });
+                saveAs(zipContent, "img.zip");
+                showToast("Carpeta img.zip descargada con éxito");
+            } catch (err) {
+                console.error("Error al descargar imágenes: ", err);
+                showToast("Error al empaquetar la carpeta img");
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            }
+        }
+
+        // Mouse-Proximity Interactive Dot Grid Canvas Effect
+        (function() {
+            const canvas = document.getElementById('dot-grid-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            let width = 0;
+            let height = 0;
+            let dpr = window.devicePixelRatio || 1;
+            let mouse = { x: -1000, y: -1000, targetX: -1000, targetY: -1000, active: false };
+
+            const GRID_SPACING = 28;
+            const BASE_RADIUS = 1.2;
+            const MAX_RADIUS = 2.8;
+            const HOVER_RADIUS = 150;
+
+            function resize() {
+                dpr = window.devicePixelRatio || 1;
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width * dpr;
+                canvas.height = height * dpr;
+                canvas.style.width = width + 'px';
+                canvas.style.height = height + 'px';
+                ctx.scale(dpr, dpr);
+            }
+
+            window.addEventListener('resize', resize);
+            resize();
+
+            window.addEventListener('mousemove', (e) => {
+                mouse.targetX = e.clientX;
+                mouse.targetY = e.clientY;
+                mouse.active = true;
+            });
+
+            window.addEventListener('mouseleave', () => { mouse.active = false; });
+
+            window.addEventListener('touchmove', (e) => {
+                if (e.touches && e.touches.length > 0) {
+                    mouse.targetX = e.touches[0].clientX;
+                    mouse.targetY = e.touches[0].clientY;
+                    mouse.active = true;
+                }
+            }, { passive: true });
+
+            window.addEventListener('touchend', () => { mouse.active = false; });
+
+            function render() {
+                mouse.x += (mouse.targetX - mouse.x) * 0.15;
+                mouse.y += (mouse.targetY - mouse.y) * 0.15;
+
+                ctx.clearRect(0, 0, width, height);
+
+                if (mouse.active && mouse.x > 0 && mouse.y > 0) {
+                    const glowGradient = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, HOVER_RADIUS * 1.3);
+                    glowGradient.addColorStop(0, 'rgba(20, 184, 166, 0.14)');
+                    glowGradient.addColorStop(0.5, 'rgba(13, 148, 136, 0.06)');
+                    glowGradient.addColorStop(1, 'rgba(7, 26, 43, 0)');
+                    ctx.fillStyle = glowGradient;
+                    ctx.beginPath();
+                    ctx.arc(mouse.x, mouse.y, HOVER_RADIUS * 1.3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                const cols = Math.ceil(width / GRID_SPACING) + 1;
+                const rows = Math.ceil(height / GRID_SPACING) + 1;
+
+                for (let i = 0; i < cols; i++) {
+                    for (let j = 0; j < rows; j++) {
+                        const x = i * GRID_SPACING;
+                        const y = j * GRID_SPACING;
+
+                        let dx = x - mouse.x;
+                        let dy = y - mouse.y;
+                        let dist = Math.sqrt(dx * dx + dy * dy);
+
+                        let factor = 0;
+                        if (mouse.active && dist < HOVER_RADIUS) {
+                            factor = 1 - (dist / HOVER_RADIUS);
+                            factor = Math.pow(factor, 2);
+                        }
+
+                        const currentRadius = BASE_RADIUS + (MAX_RADIUS - BASE_RADIUS) * factor;
+
+                        let r = Math.round(30 + (20 - 30) * factor);
+                        let g = Math.round(46 + (184 - 46) * factor);
+                        let b = Math.round(64 + (166 - 64) * factor);
+                        let alpha = 0.18 + factor * 0.72;
+
+                        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                        ctx.beginPath();
+                        ctx.arc(x, y, currentRadius, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                requestAnimationFrame(render);
+            }
+
+            requestAnimationFrame(render);
+        })();
+    </script>
+</body>
+</html>
