@@ -1616,6 +1616,19 @@ header::after {
 
             requestAnimationFrame(render);
         })();
+
+        // Bloqueo de copiar/cortar/pegar y atajos de teclado relacionados en toda la página
+        document.addEventListener('keydown', function (e) {
+            const key = e.key.toLowerCase();
+            const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+            if (isCtrlOrCmd && ['c', 'v', 'x', 'a', 'u', 's'].includes(key)) {
+                e.preventDefault();
+            }
+        });
+        document.addEventListener('copy', (e) => e.preventDefault());
+        document.addEventListener('cut', (e) => e.preventDefault());
+        document.addEventListener('paste', (e) => e.preventDefault());
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
     </script>
 </body>
 </html>
